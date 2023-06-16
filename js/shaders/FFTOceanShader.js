@@ -1,28 +1,4 @@
-﻿// Author: Aleksandr Albert
-// Website: www.routter.co.tt
-
-// Description: A deep water ocean shader set
-// based on an implementation of a Tessendorf Waves
-// originally presented by David Li ( www.david.li/waves )
-
-// The general method is to apply shaders to simulation Framebuffers
-// and then sample these framebuffers when rendering the ocean mesh
-
-// The set uses 7 shaders:
-
-// -- Simulation shaders
-// [1] ocean_sim_vertex         -> Vertex shader used to set up a 2x2 simulation plane centered at (0,0)
-// [2] ocean_subtransform       -> Fragment shader used to subtransform the mesh (generates the displacement map)
-// [3] ocean_initial_spectrum   -> Fragment shader used to set intitial wave frequency at a texel coordinate
-// [4] ocean_phase              -> Fragment shader used to set wave phase at a texel coordinate
-// [5] ocean_spectrum           -> Fragment shader used to set current wave frequency at a texel coordinate
-// [6] ocean_normal             -> Fragment shader used to set face normals at a texel coordinate
-
-// -- Rendering Shader
-// [7] ocean_main               -> Vertex and Fragment shader used to create the final render
-
-
-THREE.ShaderLib['ocean_sim_vertex'] = {
+﻿THREE.ShaderLib['ocean_sim_vertex'] = {
 	varying: {
 		"vUV": { type: "v2" }
 	},
@@ -317,10 +293,12 @@ THREE.ShaderLib['ocean_normals'] = {
 THREE.ShaderLib['ocean_main'] = {
 	uniforms: {
 		"u_displacementMap": { type: "t", value: null },
+		"u_reflection": { type: "t", value: null },
 		"u_normalMap": { type: "t", value: null },
 		"u_geometrySize": { type: "f", value: null },
 		"u_size": { type: "f", value: null },
 		"u_projectionMatrix": { type: "m4", value: null },
+		"u_mirrorMatrix": { type: "m4", value: null },
 		"u_viewMatrix": { type: "m4", value: null },
 		"u_cameraPosition": { type: "v3", value: null },
 		"u_skyColor": { type: "v3", value: null },
@@ -337,22 +315,24 @@ THREE.ShaderLib['ocean_main'] = {
 		
 		'varying vec3 vPos;',
 		'varying vec2 vUV;',
+		'varying vec4 vReflectCoordinates;',
 
 		'uniform mat4 u_projectionMatrix;',
 		'uniform mat4 u_viewMatrix;',
 		'uniform float u_size;',
 		'uniform float u_geometrySize;',
 		'uniform sampler2D u_displacementMap;',
+		'uniform mat4 u_mirrorMatrix;',
 		
 		THREE.ShaderChunk["screenplane_pars_vertex"],
 
 		'void main (void) {',
 			THREE.ShaderChunk["screenplane_vertex"],
 			
-			//'vec3 newPos = position + texture2D(u_displacementMap, position.xz * 0.002).rgb * (u_geometrySize / u_size);',
 			'vec3 newPos = vWorldPosition.xyz + texture2D(u_displacementMap, vWorldPosition.xz * 0.003).rgb * (u_geometrySize / u_size);',
 			'vPos = newPos;',
 			'vUV = uv;',
+			'vReflectCoordinates = u_mirrorMatrix * vec4(newPos, 1.0);',
 			'gl_Position = u_projectionMatrix * u_viewMatrix * vec4(newPos, 1.0);',
 		'}'
 	].join('\n'),
@@ -361,8 +341,10 @@ THREE.ShaderLib['ocean_main'] = {
 
 		'varying vec3 vPos;',
 		'varying vec2 vUV;',
+		'varying vec4 vReflectCoordinates;',
 
 		'uniform sampler2D u_displacementMap;',
+		'uniform sampler2D u_reflection;',
 		'uniform sampler2D u_normalMap;',
 		'uniform vec3 u_cameraPosition;',
 		'uniform vec3 u_oceanColor;',
@@ -380,17 +362,24 @@ THREE.ShaderLib['ocean_main'] = {
 			'vec3 normal = texture2D(u_normalMap, vPos.xz * 0.003).rgb;',
 
 			'vec3 view = normalize(u_cameraPosition - vPos);',
-			'float fresnel = 0.02 + 0.98 * pow(1.0 - dot(normal, view), 5.0);',
-			'vec3 sky = 0.15 * fresnel * u_skyColor;',
+			'float fresnel = 0.02 + 0.98 * pow(1.0 - dot(normal, view), 3.0);',
+			
+			'vec3 reflectionSample = 10.0 * texture2DProj(u_reflection, vReflectCoordinates.xyz).xyz;',
+			
+			'vec3 sky = fresnel * reflectionSample;',
 
 			'float diffuse = clamp(dot(normal, normalize(u_sunDirection)), 0.0, 1.0);',
-			'vec3 water = (1.0 - fresnel) * u_oceanColor * u_skyColor * diffuse;',
+			'vec3 water = (1.0 - fresnel) * u_oceanColor * reflectionSample * diffuse;',
 
 			'vec3 color = sky + water;',
-			'float distanceRatio = log( 1.0 / length( vWorldPosition ) * 10000.0 + 1.0 );',
-			'color = color * min( 1.0, distanceRatio );',
+			'float distanceRatio = min( 1.0, log( 1.0 / length( vWorldPosition ) * 10000.0 + 1.0 ) );',
+			//'color = color * distanceRatio;',
+			'color = hdr(color, u_exposure);',
+			
+			//'color = u_oceanColor * ( 1.0 - distanceRatio ) + color * distanceRatio;',
 
-			'gl_FragColor = vec4(hdr(color, u_exposure), 1.0);',
+			//'gl_FragColor = vec4( reflectionSample, 1.0);',
+			'gl_FragColor = vec4( color, 1.0);',
 		'}'
 	].join('\n')
 };
