@@ -1,3 +1,5 @@
+
+
 THREE.MirrorRenderer = function (renderer, camera, scene, options) {
 	
 	THREE.Object3D.call(this);
