@@ -17,6 +17,7 @@
 	
 	// Create mirror rendering
 	this.mirror = new THREE.MirrorRenderer( renderer, camera, scene ) ;
+	this.mirror.position.y = -10.0;
 	
 	// Assign optional parameters as variables and object properties
 	function optionalParameter(value, defaultValue) {
@@ -314,7 +315,7 @@ THREE.Ocean.prototype.renderSpectrumFFT = function() {
 		}
 		else {
 			subtransformProgram.uniforms.u_input.value = this.pongTransformFramebuffer;
-			frameBuffer = this.pingTransformFramebuffer ;
+			frameBuffers = this.pingTransformFramebuffer ;
 		}
 		
 		if (i === iterations / 2) {

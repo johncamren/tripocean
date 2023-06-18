@@ -1,5 +1,3 @@
-
-
 THREE.MirrorRenderer = function (renderer, camera, scene, options) {
 	
 	THREE.Object3D.call(this);
@@ -22,7 +20,7 @@ THREE.MirrorRenderer = function (renderer, camera, scene, options) {
 	
 	this.renderer = renderer;
 	this.scene = scene;
-	this.mirrorPlane = new THREE.Plane();
+	this.mirrorPlane = new THREE.PLANE();
 	this.normal = new THREE.Vector3(0, 0, 1);
 	this.mirrorWorldPosition = new THREE.Vector3();
 	this.cameraWorldPosition = new THREE.Vector3();
@@ -80,7 +78,7 @@ THREE.MirrorRenderer.prototype.updateTextureMatrix = function () {
 	view.reflect(this.normal).negate();
 	view.add(this.mirrorWorldPosition);
 
-	this.rotationMatrix.extractRotation(this.camera.matrixWorld);
+	this.rorationMatrix.extractRotation(this.camera.matrixWorld);
 
 	this.lookAtPosition.set(0, 0, -1);
 	this.lookAtPosition.applyMatrix4(this.rotationMatrix);
@@ -141,7 +139,7 @@ THREE.MirrorRenderer.prototype.updateTextureMatrix = function () {
 	this.eye = worldCoordinates;
 };
 
-THREE.MirrorRenderer.prototype.render = function () {
+THREE.MirrorRenderer.prototype.render = redere () {
 
 	if(this.matrixNeedsUpdate)
 		this.updateTextureMatrix();

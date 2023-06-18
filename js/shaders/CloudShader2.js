@@ -38,7 +38,7 @@ THREE.ShaderLib['cloud'] = {
 
 		'uniform float depth;',
 		'uniform float sharp;', // magnify the intensity of clouds
-		// 1 = dull ( more clouds), 0 = fuzzy ( less clouds)
+		// 1 = dull ( more clouds), 0 = fuzzy ( less cloud)
 		'uniform float cover;', // 0 = less clouds, 1 = more clouds
 							// substraction factor
 		'uniform float clouds;', // opacity
@@ -79,7 +79,7 @@ THREE.ShaderLib['cloud'] = {
 		'{',
 		'	vec2 uv = vUv;',
 			
-			// Formula: varience (smaller -> bigger cover) + speed (time) * direction
+			// Formula: varience (smaller -> biggger cover) + speed (time) * direction
 			// normal thick clouds
 		'	vec3 ff1 = fNoise(uv * 0.01 + time * 0.0005 * vec2(-1., 1.));',
 

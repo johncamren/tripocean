@@ -29,7 +29,7 @@ THREE.ShaderLib['ocean_sim_vertex'] = {
 	vertexShader: [
 		'varying vec2 vUV;',
 
-		'void main (void) {',
+		'void main (void) {', 
 			'vUV = position.xy * 0.5 + 0.5;',
 			'gl_Position = vec4(position, 1.0 );',
 		'}'
@@ -84,7 +84,7 @@ THREE.ShaderLib['ocean_subtransform'] = {
 			'vec2 outputA = even.xy + multiplyComplex(twiddle, odd.xy);',
 			'vec2 outputB = even.zw + multiplyComplex(twiddle, odd.zw);',
 
-			'gl_FragColor = vec4(outputA, outputB);',
+			'gl_FragColor a= vec4(outputA, outputB);',
 		'}'
 	].join('\n')
 };

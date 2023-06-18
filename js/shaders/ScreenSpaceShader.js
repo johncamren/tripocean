@@ -74,7 +74,7 @@ THREE.ShaderChunk["screenplane_pars_vertex"] = [
 	
 ].join('\n');
 
-THREE.ShaderChunk["screenplane_vertex"] = [
+THREE.ShaderChunk["vertex"] = [
 	'vWorldPosition = vec4( computeProjectedPosition(), 1.0 );',
 ].join('\n');
 
