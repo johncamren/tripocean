@@ -315,7 +315,7 @@ THREE.Ocean.prototype.renderSpectrumFFT = function() {
 		}
 		else {
 			subtransformProgram.uniforms.u_input.value = this.pongTransformFramebuffer;
-			frameBuffers = this.pingTransformFramebuffer ;
+			frameBuffer = this.pingTransformFramebuffer ;
 		}
 		
 		if (i === iterations / 2) {

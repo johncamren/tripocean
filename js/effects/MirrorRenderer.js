@@ -1,3 +1,5 @@
+
+
 THREE.MirrorRenderer = function (renderer, camera, scene, options) {
 	
 	THREE.Object3D.call(this);
@@ -16,11 +18,11 @@ THREE.MirrorRenderer = function (renderer, camera, scene, options) {
 	
 	var width = optionalParameter(options.textureWidth, 512);
 	var height = optionalParameter(options.textureHeight, 512);
-	this.clipBias = optionalParameter(options.clipBias, -0.01);
+	this.clipBias = optionalParameter(options.clipBias, 0.02);
 	
 	this.renderer = renderer;
 	this.scene = scene;
-	this.mirrorPlane = new THREE.PLANE();
+	this.mirrorPlane = new THREE.Plane();
 	this.normal = new THREE.Vector3(0, 0, 1);
 	this.mirrorWorldPosition = new THREE.Vector3();
 	this.cameraWorldPosition = new THREE.Vector3();
@@ -75,10 +77,11 @@ THREE.MirrorRenderer.prototype.updateTextureMatrix = function () {
 	this.normal.applyMatrix4(this.rotationMatrix);
 
 	var view = this.mirrorWorldPosition.clone().sub(this.cameraWorldPosition);
+	view.y -= 0.1;
 	view.reflect(this.normal).negate();
 	view.add(this.mirrorWorldPosition);
 
-	this.rorationMatrix.extractRotation(this.camera.matrixWorld);
+	this.rotationMatrix.extractRotation(this.camera.matrixWorld);
 
 	this.lookAtPosition.set(0, 0, -1);
 	this.lookAtPosition.applyMatrix4(this.rotationMatrix);
@@ -139,7 +142,7 @@ THREE.MirrorRenderer.prototype.updateTextureMatrix = function () {
 	this.eye = worldCoordinates;
 };
 
-THREE.MirrorRenderer.prototype.render = redere () {
+THREE.MirrorRenderer.prototype.render = function () {
 
 	if(this.matrixNeedsUpdate)
 		this.updateTextureMatrix();
